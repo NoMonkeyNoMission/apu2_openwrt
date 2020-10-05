@@ -45,7 +45,7 @@ config rule
 
 config rule
 	option name 'Allow-ICMPv6-Input'
-	option src 'wan'
+	option src '*'
 	option proto 'icmp'
 	list icmp_type 'echo-request'
 	list icmp_type 'echo-reply'
@@ -64,7 +64,7 @@ config rule
 
 config rule
 	option name 'Allow-ICMPv6-Forward'
-	option src 'wan'
+	option src '*'
 	option dest '*'
 	option proto 'icmp'
 	list icmp_type 'echo-request'
@@ -77,6 +77,28 @@ config rule
 	option limit '1000/sec'
 	option family 'ipv6'
 	option target 'ACCEPT'
+
+config rule
+	option dest_port '546-547'
+	option src 'guest'
+	option name 'DHCPv6 Guest'
+	option family 'ipv6'
+	option target 'ACCEPT'
+	list proto 'udp'
+
+config rule
+	option target 'ACCEPT'
+	option proto 'udp'
+	option dest_port '67-68'
+	option name 'guest_dhcp'
+	option src 'guest'
+
+config rule
+	option target 'ACCEPT'
+	option proto 'tcp udp'
+	option dest_port '53'
+	option name 'guest_dns'
+	option src 'guest'
 
 config rule
 	option name 'Allow-IPSec-ESP'
@@ -101,6 +123,13 @@ config zone
 	option network 'lan'
 
 config zone
+	option name 'guest'
+	option network 'guest'
+	option input 'REJECT'
+	option output 'ACCEPT'
+	option forward 'REJECT'
+
+config zone
 	option name 'wan'
 	option input 'REJECT'
 	option output 'ACCEPT'
@@ -115,6 +144,10 @@ config include
 config forwarding
 	option dest 'wan'
 	option src 'lan'
+
+config forwarding
+	option dest 'wan'
+	option src 'guest'
 
 config include 'nat6'
     option path '/etc/firewall.nat6'
